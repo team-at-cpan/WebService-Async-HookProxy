@@ -1,7 +1,11 @@
 package WebService::Async::HookProxy;
+# ABSTRACT: Queue and forward web hook notifications
 
 use strict;
 use warnings;
+
+# AUTHORITY
+our $VERSION = '0.001';
 
 use Object::Pad;
 
