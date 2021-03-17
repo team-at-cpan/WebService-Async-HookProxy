@@ -96,9 +96,9 @@ method queue_notification ($data) {
     $client_processing ||= (fmap_void {
         my ($item) = @_;
         return $self->notify_clients($item);
-    } foreach => \@pending, concurrent => 1)->on_ready(method {
+    } foreach => \@pending, concurrent => 1)->on_ready($self->$curry::weak(method {
         undef $client_processing
-    });
+    }));
 }
 
 =head2 notify_clients
