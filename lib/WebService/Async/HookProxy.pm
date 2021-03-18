@@ -27,6 +27,13 @@ use Future::Utils qw(fmap_void);
 use JSON::MaybeUTF8 qw(:v1);
 use Log::Any qw($log);
 
+# Default listening ports
+has $http_port = 8088;
+has $ws_port = 8089;
+
+# Number of requests we can keep around before we start throwing things away
+has $max_queued = 1000;
+
 # Our Net::Async::HTTP::Server instance for listening to incoming requests
 has $http;
 # The websockets server for passing queued requests back to listeners
@@ -88,6 +95,8 @@ registered, we'll start sending. If not, we just queue.
 =cut
 
 method queue_notification ($data) {
+    splice @pending, 0, @pending - $max_queued if @pending >= $max_queued;
+
     push @pending, $data;
 
     # No point trying to notify if no one is connected
@@ -174,6 +183,9 @@ async method start {
 }
 
 method configure (%args) {
+    $http_port = delete $args{http_port} if exists $args{http_port};
+    $ws_port = delete $args{ws_port} if exists $args{ws_port};
+    $max_queued = delete $args{max_queued} if exists $args{max_queued};
     return $self->next::method(%args);
 }
 
